@@ -7,11 +7,6 @@ const height = canvas.height;
 const numOfSq = 10;
 const size = 500 / numOfSq;
 
-const playerAvatar = new Image();
-playerAvatar.src = '/images/character-down.png';
-const treasureIcon = new Image();
-treasureIcon.src = '/images/treasure.png';
-
 const randomBetweenIntegers = (min, max) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -21,16 +16,16 @@ class Character {
     this.col = col;
   }
   moveUp() {
-    return (this.row = this.row - 1); // apperantly return is not necessary
+    this.col--; // apperantly return is not necessary
   }
   moveRight() {
-    return (this.col = this.col + 1);
+    this.row++;
   }
   moveDown() {
-    return (this.row = this.row + 1);
+    this.col++;
   }
   moveLeft() {
-    return (this.col = this.col - 1);
+    this.row--;
   }
 }
 
@@ -40,13 +35,15 @@ class Treasure {
     this.col = col;
   }
   setRandomPosition() {
-    let row = randomBetweenIntegers(0, 10) * size;
-    let col = randomBetweenIntegers(0, 10) * size;
+    this.row = randomBetweenIntegers(0, 9);
+    this.col = randomBetweenIntegers(0, 9);
+
+    console.log(this.row, this.col);
   }
 }
 
 const player = new Character(0, 0);
-const treasure = new Treasure(50, 50);
+const treasure = new Treasure(0, 0);
 
 // Iteration 1
 function drawGrid() {
@@ -59,31 +56,10 @@ function drawGrid() {
   context.lineWidth = 3;
   context.stroke();
 }
-/*
-const move = () => {
-  context.fillRect(xChar, yChar, size, size);
-  context.fillStyle = 'blue';
-  context.fillRect(xTarget, yTarget, size, size);
-  context.fillStyle = 'purple';
-};
-*/
-
-const clean = () => {
-  context.clearRect(0, 0, 500, 500);
-};
-
-/*
-TEST 
-const player = new Character(0, 0); // (0,0) = Initial position
-
-player.moveDown(); // Increase by 1 the value of player.row
-player.moveDown(); // Increase by 1 the value of player.row
-player.moveRight(); // Increase by 1 the value of player.col
-
-console.log(player.col, player.row); // => 1,2
-*/
 
 const drawPlayer = () => {
+  const playerAvatar = new Image();
+  playerAvatar.src = '/images/character-down.png';
   playerAvatar.onload = () => {
     context.drawImage(
       playerAvatar,
@@ -98,55 +74,70 @@ const drawPlayer = () => {
 };
 
 const drawTreasure = () => {
+  const treasureIcon = new Image();
+  treasureIcon.src = '/images/treasure.png';
   treasureIcon.onload = () => {
-    context.drawImage(treasureIcon, treasure.row, treasure.col, size, size);
+    context.drawImage(
+      treasureIcon,
+      treasure.row * size,
+      treasure.col * size,
+      size,
+      size
+    );
   };
 };
 
-document.addEventListener('keydown', (event) => {
+window.addEventListener('keydown', (event) => {
+  event.preventDefault();
   // Stop the default behavior (moving the screen to the left/up/right/down)
 
   // React based on the key pressed
-  switch (event.code) {
+  switch (event.key) {
     case 'ArrowLeft':
       console.log('left');
       player.moveLeft();
+      drawEverything();
+      console.log(player.col, player.row);
       break;
     case 'ArrowUp':
       console.log('up');
       player.moveUp();
+      drawEverything();
       break;
     case 'ArrowRight':
       console.log('right');
       player.moveRight();
+      drawEverything();
       break;
     case 'ArrowDown':
       console.log('down');
       player.moveDown();
+      drawEverything();
       break;
   }
-  drawEverything();
 });
 
 function drawEverything() {
+  context.clearRect(0, 0, 500, 500);
   drawGrid(); // can't take arguments
-  drawPlayer(50, 200);
-  drawTreasure(0, 0);
+  drawPlayer();
+  drawTreasure();
 }
 
+treasure.setRandomPosition();
 drawEverything();
 
 //You can paste this at the end of your js file to get all images loaded without calling the event for each image:
 // When the page load, the first drawEveryThing will be executed after 1000ms to ensure images get loaded.
 // setTimeout(() => drawEverything(), 1000);
 
-/*
+//Check for keys
+//document.onkeydown = (e) => {
+//   playerMovement(e.key);
+//   drawEverything();
+// };
 
-// Check for keys
-document.onkeydown = (e) => {
-  playerMovement(e.key);
-  drawEverything();
-};
+/*
 Alberto Cárdenas to Everyone (19:25)
 function playerMovement(key) {
   switch (key) {
